@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grade 3 English Game - Noun, Verb or Adjective</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #dff6ff, #fff4d6, #ffd9ec);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .game-container {
+      width: 100%;
+      max-width: 700px;
+      background: #ffffff;
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      padding: 20px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-size: clamp(1.4rem, 3vw, 2.2rem);
+      color: #2d3a4b;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: clamp(0.95rem, 2vw, 1.1rem);
+      color: #5f6b7a;
+      margin-bottom: 18px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+      background: #f7fbff;
+      padding: 12px 14px;
+      border-radius: 16px;
+    }
+
+    .score, .question-count {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #334155;
+    }
+
+    .sound-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .sound-box label {
+      font-size: 0.95rem;
+      color: #334155;
+      font-weight: bold;
+    }
+
+    #volumeControl {
+      width: 140px;
+      cursor: pointer;
+    }
+
+    .question-card {
+      background: linear-gradient(180deg, #fff9ec, #fef3ff);
+      border-radius: 22px;
+      padding: 28px 18px;
+      margin-bottom: 20px;
+      min-height: 240px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border: 3px dashed #ffd166;
+    }
+
+    .instruction {
+      font-size: clamp(1rem, 2vw, 1.15rem);
+      color: #475569;
+      margin-bottom: 16px;
+    }
+
+    .word-box {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: bold;
+      color: #7c3aed;
+      margin-bottom: 24px;
+      word-break: break-word;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .option-btn {
+      border: none;
+      border-radius: 16px;
+      padding: 14px 10px;
+      font-size: clamp(1rem, 2vw, 1.15rem);
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease;
+      color: #fff;
+      min-height: 58px;
+    }
+
+    .option-btn:hover {
+      transform: scale(1.04);
+    }
+
+    .option-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.8;
+    }
+
+    .noun {
+      background: #3b82f6;
+    }
+
+    .verb {
+      background: #10b981;
+    }
+
+    .adjective {
+      background: #f97316;
+    }
+
+    .feedback {
+      min-height: 40px;
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      font-weight: bold;
+      margin: 14px 0 6px;
+    }
+
+    .correct {
+      color: #15803d;
+    }
+
+    .wrong {
+      color: #dc2626;
+    }
+
+    .restart-wrap {
+      margin-top: 16px;
+    }
+
+    .restart-btn {
+      border: none;
+      background: #8b5cf6;
+      color: white;
+      font-size: 1rem;
+      font-weight: bold;
+      padding: 14px 24px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .restart-btn:hover {
+      background: #7c3aed;
+      transform: scale(1.03);
+    }
+
+    .final-screen {
+      display: none;
+      padding: 22px 10px 10px;
+    }
+
+    .final-screen h2 {
+      font-size: clamp(1.6rem, 4vw, 2.5rem);
+      color: #1e293b;
+      margin-bottom: 12px;
+    }
+
+    .final-score {
+      font-size: clamp(1.2rem, 3vw, 1.6rem);
+      color: #7c3aed;
+      font-weight: bold;
+      margin-bottom: 16px;
+    }
+
+    canvas#confettiCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    @media (max-width: 600px) {
+      .game-container {
+        padding: 16px;
+        border-radius: 20px;
+      }
+
+      .options {
+        grid-template-columns: 1fr;
+      }
+
+      .top-bar {
+        flex-direction: column;
+      }
+
+      #volumeControl {
+        width: 180px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="confettiCanvas"></canvas>
+
+  <div class="game-container">
+    <h1>English Word Game</h1>
+    <p class="subtitle">Choose whether the word is a <strong>noun</strong>, <strong>verb</strong>, or <strong>adjective</strong>.</p>
+
+    <div class="top-bar">
+      <div class="question-count" id="questionCount">Question 1 / 10</div>
+      <div class="score" id="score">Score: 0</div>
+      <div class="sound-box">
+        <label for="volumeControl">🔊 Sound</label>
+        <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="0.9">
+      </div>
+    </div>
+
+    <div id="gameScreen">
+      <div class="question-card">
+        <div class="instruction">What kind of word is this?</div>
+        <div class="word-box" id="wordBox">happy</div>
+
+        <div class="options">
+          <button class="option-btn noun" onclick="checkAnswer('noun')">Noun</button>
+          <button class="option-btn verb" onclick="checkAnswer('verb')">Verb</button>
+          <button class="option-btn adjective" onclick="checkAnswer('adjective')">Adjective</button>
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+      </div>
+    </div>
+
+    <div id="finalScreen" class="final-screen">
+      <h2>🎉 Great Job!</h2>
+      <div class="final-score" id="finalScore">You scored 8 out of 10!</div>
+      <p style="font-size:1rem; color:#475569;">Tap restart and play again with the questions shuffled.</p>
+    </div>
+
+    <div class="restart-wrap">
+      <button class="restart-btn" onclick="restartGame()">Restart Game</button>
+    </div>
+  </div>
+
+  <script>
+    const allQuestions = [
+      { word: "teacher", answer: "noun" },
+      { word: "run", answer: "verb" },
+      { word: "beautiful", answer: "adjective" },
+      { word: "apple", answer: "noun" },
+      { word: "jump", answer: "verb" },
+      { word: "soft", answer: "adjective" },
+      { word: "lion", answer: "noun" },
+      { word: "write", answer: "verb" },
+      { word: "bright", answer: "adjective" },
+      { word: "school", answer: "noun" }
+    ];
+
+    let questions = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let currentQuestion = null;
+    let audioContext = null;
+    let volume = 0.9;
+    let confettiPieces = [];
+    let confettiAnimationId = null;
+
+    const wordBox = document.getElementById("wordBox");
+    const feedback = document.getElementById("feedback");
+    const scoreDisplay = document.getElementById("score");
+    const questionCount = document.getElementById("questionCount");
+    const gameScreen = document.getElementById("gameScreen");
+    const finalScreen = document.getElementById("finalScreen");
+    const finalScore = document.getElementById("finalScore");
+    const volumeControl = document.getElementById("volumeControl");
+    const optionButtons = document.querySelectorAll(".option-btn");
+    const confettiCanvas = document.getElementById("confettiCanvas");
+    const ctx = confettiCanvas.getContext("2d");
+
+    function resizeCanvas() {
+      confettiCanvas.width = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    function initAudio() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playTone(frequency, duration, type = "sine", gainValue = 0.2) {
+      initAudio();
+
+      if (audioContext.state === "suspended") {
+        audioContext.resume();
+      }
+
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      oscillator.type = type;
+      oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+
+      gainNode.gain.setValueAtTime(gainValue * volume, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + duration);
+    }
+
+    function playCorrectSound() {
+      playTone(700, 0.12, "triangle", 0.4);
+      setTimeout(() => playTone(900, 0.16, "triangle", 0.4), 100);
+    }
+
+    function playWrongSound() {
+      playTone(220, 0.18, "sawtooth", 0.45);
+      setTimeout(() => playTone(170, 0.22, "sawtooth", 0.4), 120);
+    }
+
+    function shuffleArray(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function loadQuestion() {
+      if (currentQuestionIndex >= questions.length) {
+        endGame();
+        return;
+      }
+
+      currentQuestion = questions[currentQuestionIndex];
+      wordBox.textContent = currentQuestion.word;
+      feedback.textContent = "";
+      feedback.className = "feedback";
+      questionCount.textContent = `Question ${currentQuestionIndex + 1} / ${questions.length}`;
+
+      optionButtons.forEach(btn => btn.disabled = false);
+    }
+
+    function checkAnswer(selected) {
+      optionButtons.forEach(btn => btn.disabled = true);
+
+      if (selected === currentQuestion.answer) {
+        score++;
+        scoreDisplay.textContent = `Score: ${score}`;
+        feedback.textContent = "✅ Correct!";
+        feedback.className = "feedback correct";
+        playCorrectSound();
+      } else {
+        feedback.textContent = `❌ Oops! Correct answer: ${capitalize(currentQuestion.answer)}`;
+        feedback.className = "feedback wrong";
+        playWrongSound();
+      }
+
+      setTimeout(() => {
+        currentQuestionIndex++;
+        loadQuestion();
+      }, 1100);
+    }
+
+    function capitalize(word) {
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    }
+
+    function endGame() {
+      gameScreen.style.display = "none";
+      finalScreen.style.display = "block";
+      finalScore.textContent = `You scored ${score} out of ${questions.length}!`;
+      launchConfetti();
+    }
+
+    function restartGame() {
+      stopConfetti();
+      questions = shuffleArray(allQuestions).slice(0, 10);
+      currentQuestionIndex = 0;
+      score = 0;
+      scoreDisplay.textContent = "Score: 0";
+      gameScreen.style.display = "block";
+      finalScreen.style.display = "none";
+      loadQuestion();
+    }
+
+    volumeControl.addEventListener("input", (e) => {
+      volume = parseFloat(e.target.value);
+    });
+
+    function launchConfetti() {
+      confettiPieces = [];
+      const colors = ["#ff4d6d", "#ffbe0b", "#3a86ff", "#8338ec", "#06d6a0", "#fb5607"];
+
+      for (let i = 0; i < 180; i++) {
+        confettiPieces.push({
+          x: Math.random() * confettiCanvas.width,
+          y: Math.random() * confettiCanvas.height - confettiCanvas.height,
+          size: Math.random() * 8 + 4,
+          speedY: Math.random() * 3 + 2,
+          speedX: Math.random() * 2 - 1,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * 360,
+          rotationSpeed: Math.random() * 8 - 4
+        });
+      }
+
+      animateConfetti();
+    }
+
+    function animateConfetti() {
+      ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+
+      confettiPieces.forEach(piece => {
+        ctx.save();
+        ctx.translate(piece.x, piece.y);
+        ctx.rotate(piece.rotation * Math.PI / 180);
+        ctx.fillStyle = piece.color;
+        ctx.fillRect(-piece.size / 2, -piece.size / 2, piece.size, piece.size * 0.6);
+        ctx.restore();
+
+        piece.y += piece.speedY;
+        piece.x += piece.speedX;
+        piece.rotation += piece.rotationSpeed;
+
+        if (piece.y > confettiCanvas.height + 20) {
+          piece.y = -20;
+          piece.x = Math.random() * confettiCanvas.width;
+        }
+      });
+
+      confettiAnimationId = requestAnimationFrame(animateConfetti);
+    }
+
+    function stopConfetti() {
+      if (confettiAnimationId) {
+        cancelAnimationFrame(confettiAnimationId);
+        confettiAnimationId = null;
+      }
+      ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    }
+
+    // Start game
+    restartGame();
+
+    // Unlock sound on first interaction for mobile/tablet browsers
+    document.body.addEventListener("click", () => {
+      initAudio();
+      if (audioContext && audioContext.state === "suspended") {
+        audioContext.resume();
+      }
+    }, { once: true });
+  </script>
+</body>
+</html>
