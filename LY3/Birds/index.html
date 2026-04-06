@@ -1,219 +1,391 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bird Counting Game</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bird Counting Game</title>
 
-<style>
-body {
-    font-family: 'Comic Sans MS', cursive;
-    background: linear-gradient(to right, #ffecd2, #fcb69f);
-    text-align: center;
-    margin: 0;
-    padding: 10px;
-}
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-h1 {
-    color: #ff4081;
-}
+    body {
+      margin: 0;
+      padding: 12px;
+      font-family: "Comic Sans MS", cursive, sans-serif;
+      background: linear-gradient(to right, #ffecd2, #fcb69f);
+      text-align: center;
+    }
 
-.game-container {
-    max-width: 500px;
-    margin: auto;
-    background: #fff;
-    border-radius: 20px;
-    padding: 15px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-}
+    h1 {
+      margin: 10px 0 14px;
+      color: #ff4081;
+      font-size: clamp(28px, 5vw, 40px);
+    }
 
-img {
-    width: 100%;
-    max-height: 250px;
-    object-fit: contain;
-}
+    .game-container {
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+    }
 
-.options button {
-    display: block;
-    width: 80%;
-    margin: 10px auto;
-    padding: 15px;
-    font-size: 20px;
-    border-radius: 15px;
-    border: none;
-    background: #4caf50;
-    color: white;
-    cursor: pointer;
-}
+    #question-number {
+      font-size: 20px;
+      font-weight: bold;
+      color: #444;
+      margin-bottom: 10px;
+    }
 
-.options button:hover {
-    background: #45a049;
-}
+    .image-wrap {
+      width: 100%;
+      min-height: 260px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff8f3;
+      border-radius: 16px;
+      padding: 10px;
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
 
-.score {
-    font-size: 20px;
-    margin-top: 10px;
-}
+    #question-image {
+      width: 100%;
+      max-width: 100%;
+      max-height: 240px;
+      object-fit: contain;
+      display: block;
+    }
 
-.controls {
-    margin-top: 15px;
-}
+    #image-status {
+      font-size: 14px;
+      color: #d32f2f;
+      min-height: 20px;
+      margin-top: 8px;
+    }
 
-button.restart {
-    padding: 10px 20px;
-    font-size: 16px;
-    background: #ff5722;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-}
+    .options {
+      margin-top: 10px;
+    }
 
-input[type=range] {
-    width: 80%;
-}
-</style>
+    .options button {
+      display: block;
+      width: 85%;
+      margin: 10px auto;
+      padding: 14px;
+      font-size: 20px;
+      font-weight: bold;
+      border: none;
+      border-radius: 14px;
+      background: #4caf50;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.2s ease;
+    }
 
+    .options button:hover {
+      background: #43a047;
+      transform: scale(1.02);
+    }
+
+    .options button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .score {
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+      margin-top: 12px;
+    }
+
+    .controls {
+      margin-top: 16px;
+      font-size: 16px;
+      color: #333;
+    }
+
+    input[type="range"] {
+      width: 80%;
+      margin-top: 8px;
+    }
+
+    .restart {
+      margin-top: 16px;
+      padding: 12px 22px;
+      font-size: 16px;
+      font-weight: bold;
+      background: #ff5722;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .restart:hover {
+      background: #f4511e;
+    }
+
+    .result {
+      padding: 20px 10px;
+    }
+
+    .result h2 {
+      color: #ff4081;
+      margin-bottom: 10px;
+    }
+
+    .feedback {
+      min-height: 30px;
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 600px) {
+      .game-container {
+        padding: 14px;
+      }
+
+      .image-wrap {
+        min-height: 220px;
+      }
+
+      #question-image {
+        max-height: 200px;
+      }
+
+      .options button {
+        width: 92%;
+        font-size: 18px;
+        padding: 13px;
+      }
+    }
+  </style>
 </head>
-
 <body>
+  <h1>🐦 Count the Birds!</h1>
 
-<h1>🐦 Count the Birds!</h1>
-
-<div class="game-container">
-
+  <div class="game-container" id="game-container">
     <div id="question-number"></div>
 
-    <img id="question-image" src="" alt="birds">
+    <div class="image-wrap">
+      <img id="question-image" src="" alt="Bird counting image" />
+    </div>
 
+    <div id="image-status"></div>
+    <div class="feedback" id="feedback"></div>
     <div class="options" id="options"></div>
-
     <div class="score" id="score"></div>
 
     <div class="controls">
-        🔊 Volume:
-        <input type="range" min="0" max="1" step="0.1" id="volume" value="1">
+      🔊 Volume:
+      <br />
+      <input type="range" min="0" max="1" step="0.1" id="volume" value="1" />
     </div>
 
-    <button class="restart" onclick="startGame()">Restart</button>
+    <button class="restart" id="restart-btn">Restart</button>
+  </div>
 
-</div>
+  <script>
+    const correctSound = new Audio("https://www.soundjay.com/buttons/sounds/button-4.mp3");
+    const wrongSound = new Audio("https://www.soundjay.com/buttons/sounds/button-10.mp3");
 
-<script>
+    const imageBasePath = "https://aakrutiechumble-prog.github.io/English/LY3/Birds/assets/";
 
-// Sounds
-const correctSound = new Audio("https://www.soundjay.com/buttons/sounds/button-4.mp3");
-const wrongSound = new Audio("https://www.soundjay.com/buttons/sounds/button-10.mp3");
+    let questionNumberEl = document.getElementById("question-number");
+    let questionImageEl = document.getElementById("question-image");
+    let imageStatusEl = document.getElementById("image-status");
+    let feedbackEl = document.getElementById("feedback");
+    let optionsEl = document.getElementById("options");
+    let scoreEl = document.getElementById("score");
+    let volumeEl = document.getElementById("volume");
+    let restartBtn = document.getElementById("restart-btn");
+    let gameContainer = document.getElementById("game-container");
 
-// Volume control
-document.addEventListener("input", function(e) {
-    if (e.target.id === "volume") {
-        correctSound.volume = e.target.value;
-        wrongSound.volume = e.target.value;
-    }
-});
+    let questions = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let isLocked = false;
 
-// Game variables
-let questions = [];
-let currentQuestion = 0;
-let score = 0;
-
-// Generate randomized questions
-function generateQuestions() {
-    let nums = [1,2,3,4,5,6,7,8,9,10];
-    return nums.sort(() => Math.random() - 0.5);
-}
-
-// Create options
-function generateOptions(answer) {
-    let options = new Set();
-    options.add(answer);
-
-    while (options.size < 3) {
-        let rand = Math.floor(Math.random() * 10) + 1;
-        options.add(rand);
+    function shuffleArray(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
     }
 
-    return Array.from(options).sort(() => Math.random() - 0.5);
-}
+    function generateQuestions() {
+      return shuffleArray([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    }
 
-// Load question
-function loadQuestion() {
-    if (currentQuestion >= 10) {
-        document.querySelector(".game-container").innerHTML = `
-            <h2>🎉 Game Over!</h2>
-            <p>Your Score: ${score}/10</p>
-            <button class="restart" onclick="startGame()">Play Again</button>
-        `;
+    function generateOptions(correctAnswer) {
+      const options = new Set([correctAnswer]);
+
+      while (options.size < 3) {
+        const randomNumber = Math.floor(Math.random() * 10) + 1;
+        options.add(randomNumber);
+      }
+
+      return shuffleArray([...options]);
+    }
+
+    function getImageName(number) {
+      return number === 1 ? "1-bird.png" : `${number}-birds.png`;
+    }
+
+    function updateVolume() {
+      const volume = Number(volumeEl.value);
+      correctSound.volume = volume;
+      wrongSound.volume = volume;
+    }
+
+    function showFinalScreen() {
+      gameContainer.innerHTML = `
+        <div class="result">
+          <h2>🎉 Game Over!</h2>
+          <p style="font-size: 22px; font-weight: bold;">Your Score: ${score}/10</p>
+          <button class="restart" onclick="startGame()">Play Again</button>
+        </div>
+      `;
+    }
+
+    function loadQuestion() {
+      if (currentQuestionIndex >= questions.length) {
+        showFinalScreen();
         return;
+      }
+
+      isLocked = false;
+      feedbackEl.textContent = "";
+      imageStatusEl.textContent = "";
+
+      const answer = questions[currentQuestionIndex];
+      const imageName = getImageName(answer);
+      const imagePath = imageBasePath + imageName;
+
+      questionNumberEl.textContent = `Question ${currentQuestionIndex + 1} of 10`;
+      scoreEl.textContent = `Score: ${score}`;
+
+      questionImageEl.onerror = function () {
+        imageStatusEl.textContent = `Image not found: ${imageName}`;
+        console.error("Missing image:", imagePath);
+        this.removeAttribute("src");
+      };
+
+      questionImageEl.onload = function () {
+        imageStatusEl.textContent = "";
+      };
+
+      questionImageEl.src = imagePath;
+      questionImageEl.alt = `${answer} birds`;
+
+      const options = generateOptions(answer);
+      optionsEl.innerHTML = "";
+
+      options.forEach((option) => {
+        const button = document.createElement("button");
+        button.textContent = option;
+        button.addEventListener("click", () => checkAnswer(option, answer));
+        optionsEl.appendChild(button);
+      });
     }
 
-    let answer = questions[currentQuestion];
+    function checkAnswer(selectedAnswer, correctAnswer) {
+      if (isLocked) return;
+      isLocked = true;
 
-    document.getElementById("question-number").innerText =
-        "Question " + (currentQuestion + 1);
+      const buttons = optionsEl.querySelectorAll("button");
+      buttons.forEach((button) => {
+        button.disabled = true;
 
-    let imageName = answer === 1 ? "1-bird.png" : `${answer}-birds.png`;
+        if (Number(button.textContent) === correctAnswer) {
+          button.style.background = "#2e7d32";
+        }
 
-    // ✅ FIXED PATH HERE
-    document.getElementById("question-image").src =
-        `assets/${imageName}`;
+        if (Number(button.textContent) === selectedAnswer && selectedAnswer !== correctAnswer) {
+          button.style.background = "#d32f2f";
+        }
+      });
 
-    let options = generateOptions(answer);
-    let optionsDiv = document.getElementById("options");
-    optionsDiv.innerHTML = "";
-
-    options.forEach(opt => {
-        let btn = document.createElement("button");
-        btn.innerText = opt;
-        btn.onclick = () => checkAnswer(opt, answer);
-        optionsDiv.appendChild(btn);
-    });
-
-    document.getElementById("score").innerText =
-        "Score: " + score;
-}
-
-// Check answer
-function checkAnswer(selected, correct) {
-    if (selected === correct) {
+      if (selectedAnswer === correctAnswer) {
+        feedbackEl.textContent = "✅ Correct!";
+        feedbackEl.style.color = "#2e7d32";
+        correctSound.currentTime = 0;
         correctSound.play();
         score++;
-    } else {
+      } else {
+        feedbackEl.textContent = `❌ Wrong! The correct answer was ${correctAnswer}`;
+        feedbackEl.style.color = "#d32f2f";
+        wrongSound.currentTime = 0;
         wrongSound.play();
+      }
+
+      scoreEl.textContent = `Score: ${score}`;
+
+      setTimeout(() => {
+        currentQuestionIndex++;
+        loadQuestion();
+      }, 1000);
     }
 
-    currentQuestion++;
-    setTimeout(loadQuestion, 800);
-}
-
-// Start game
-function startGame() {
-    questions = generateQuestions();
-    currentQuestion = 0;
-    score = 0;
-
-    document.querySelector(".game-container").innerHTML = `
+    function startGame() {
+      gameContainer.innerHTML = `
         <div id="question-number"></div>
-        <img id="question-image" src="">
+
+        <div class="image-wrap">
+          <img id="question-image" src="" alt="Bird counting image" />
+        </div>
+
+        <div id="image-status"></div>
+        <div class="feedback" id="feedback"></div>
         <div class="options" id="options"></div>
         <div class="score" id="score"></div>
 
         <div class="controls">
-            🔊 Volume:
-            <input type="range" min="0" max="1" step="0.1" id="volume" value="1">
+          🔊 Volume:
+          <br />
+          <input type="range" min="0" max="1" step="0.1" id="volume" value="${correctSound.volume}">
         </div>
 
-        <button class="restart" onclick="startGame()">Restart</button>
-    `;
+        <button class="restart" id="restart-btn">Restart</button>
+      `;
 
-    loadQuestion();
-}
+      questionNumberEl = document.getElementById("question-number");
+      questionImageEl = document.getElementById("question-image");
+      imageStatusEl = document.getElementById("image-status");
+      feedbackEl = document.getElementById("feedback");
+      optionsEl = document.getElementById("options");
+      scoreEl = document.getElementById("score");
+      volumeEl = document.getElementById("volume");
+      restartBtn = document.getElementById("restart-btn");
+      gameContainer = document.getElementById("game-container");
 
-// Start on load
-startGame();
+      questions = generateQuestions();
+      currentQuestionIndex = 0;
+      score = 0;
+      isLocked = false;
 
-</script>
+      volumeEl.addEventListener("input", updateVolume);
+      restartBtn.addEventListener("click", startGame);
 
+      updateVolume();
+      loadQuestion();
+    }
+
+    updateVolume();
+    restartBtn.addEventListener("click", startGame);
+    volumeEl.addEventListener("input", updateVolume);
+    startGame();
+  </script>
 </body>
 </html>
